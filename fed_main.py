@@ -3,11 +3,14 @@ import praw
 from discord.ext import commands
 from modules import reddit as rd
 import random
+import os 
 ###DISCORD
-discord_token = ' '
+discord_token = os.environ['DISCORD_KEY']
 ####REDDIT
-client_id=""
-client_secret=""
+client_id= os.environ['REDDIT_ID']
+client_secret= os.environ['REDDIT_SECRET']
+
+
 user_agent="AutoPostbyVou"
 reddit = rd(client_id,client_secret,user_agent)
 reddit.create_reddit_instance()
