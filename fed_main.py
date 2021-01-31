@@ -4,10 +4,10 @@ from discord.ext import commands
 from modules import reddit as rd
 import random
 ###DISCORD
-discord_token = 'ODAzOTg3MTM0OTY5MTUxNTY4.YBFxXg.Bvp32TAXN7M1oNgkzMD-r8UVeoo'
+discord_token = ' '
 ####REDDIT
-client_id="eQ0M5thYgZzbyQ"
-client_secret="azTXp9kmbAmo0CbPMcZjq7gf2LKgjA"
+client_id=""
+client_secret=""
 user_agent="AutoPostbyVou"
 reddit = rd(client_id,client_secret,user_agent)
 reddit.create_reddit_instance()
