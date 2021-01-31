@@ -4,12 +4,20 @@ from discord.ext import commands
 from modules import reddit as rd
 import random
 import os 
+##################LOCAL###############################
 ###DISCORD
-discord_token = os.environ['DISCORD_KEY']
+#discord_token = os.environ['DISCORD_KEY']
 ####REDDIT
-client_id= os.environ['REDDIT_ID']
-client_secret= os.environ['REDDIT_SECRET']
+#client_id= os.environ['REDDIT_ID']
+#client_secret= os.environ['REDDIT_SECRET']
+######################################################
+################  HEROKU   ###########################
+from boto.s3.connection import S3Connection
+s3 = S3Connection(os.environ['DISCORD_KEY'], os.environ['REDDIT_ID'],os.environ['REDDIT_SECRET'])
+######################################################
 
+print(discord_token)
+#print(discord_token)
 
 user_agent="AutoPostbyVou"
 reddit = rd(client_id,client_secret,user_agent)
@@ -40,6 +48,10 @@ def insensitive_in(msg,ref):
     sp = msg.upper()
     sp = sp.split()
     return ref.upper() in sp
+
+def insensitive_sb(msg,ref):
+    return msg.upper() == ref.upper()
+
 
 def hello_hi_response():
     hi_hello_responses = ("hello bhie",
@@ -169,9 +181,9 @@ async def on_message(message):
         await message.channel.send(hello_hi_response())
     if insensitive_in(message.content,"goodnight"):
             await message.channel.send(goodnight_response())        
-    if insensitive_in(message.content,"say the line sad boy"):
+    if insensitive_sb(message.content,"say the line sad boy"):
         await message.channel.send(sad_b_g())
-    if insensitive_in(message.content,"say the line sad girl"):
+    if insensitive_sb(message.content,"say the line sad girl"):
         await message.channel.send(sad_b_g())        
 
     await client.process_commands(message)
