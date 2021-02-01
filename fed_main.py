@@ -6,18 +6,18 @@ import random
 import os 
 ##################LOCAL###############################
 ###DISCORD
-#discord_token = os.environ['DISCORD_KEY']
+discord_token = os.environ['DISCORD_KEY']
 ####REDDIT
-#client_id= os.environ['REDDIT_ID']
-#client_secret= os.environ['REDDIT_SECRET']
+client_id= os.environ['REDDIT_ID']
+client_secret= os.environ['REDDIT_SECRET']
 ######################################################
 ################  HEROKU   ###########################
-from boto.s3.connection import S3Connection
-s3 = S3Connection(os.environ['DISCORD_KEY'], os.environ['REDDIT_ID'],os.environ['REDDIT_SECRET'])
+#from boto.s3.connection import S3Connection
+#s3 = S3Connection(os.environ['DISCORD_KEY'], os.environ['REDDIT_ID'],os.environ['REDDIT_SECRET'])
 ######################################################
 
 print(discord_token)
-#print(discord_token)
+
 
 user_agent="AutoPostbyVou"
 reddit = rd(client_id,client_secret,user_agent)
