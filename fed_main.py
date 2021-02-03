@@ -4,17 +4,16 @@ from discord.ext import commands
 from modules import reddit as rd
 import random
 import os 
+from mal import Anime
+from mal import AnimeSearch
+from mal import config
+config.TIMEOUT = 2
 ##################LOCAL###############################
 ###DISCORD
 discord_token = os.environ['DISCORD_KEY']
 ####REDDIT
 client_id= os.environ['REDDIT_ID']
 client_secret= os.environ['REDDIT_SECRET']
-######################################################
-################  HEROKU   ###########################
-#from boto.s3.connection import S3Connection
-#s3 = S3Connection(os.environ['DISCORD_KEY'], os.environ['REDDIT_ID'],os.environ['REDDIT_SECRET'])
-######################################################
 
 print(discord_token)
 
@@ -154,7 +153,6 @@ async def qu(ctx):
     print('sending random reddit quote')
 
 
-
 @client.command()
 async def help(ctx):
     await ctx.send(
@@ -167,6 +165,23 @@ async def help(ctx):
     )
     print('sending help')
 
+@client.command()
+async def anime(ctx, searchName):
+    try:
+        
+        search = AnimeSearch(searchName)
+        animeId = search.results[0].mal_id
+        await ctx.send(
+            'Title:' + search.results[0].title + '\n' + 
+            'Episodes:' + Anime(animeId).episodes)
+    except:
+        await ctx.send('Im not sure if i can find that anime or im just stupid' + '\n' +
+                        'or the anime data source is just so slow'
+                )
+
+
+
+    
 
 
 @client.event
