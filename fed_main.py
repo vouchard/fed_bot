@@ -27,7 +27,7 @@ def ddjokes():
     one = random.choice(data)
     jwkq = one['question']
     jwka = one['answer']
-    msg = 'hey, got a dad joke for ya' + '\n' + 'dad: ' + jwkq + '\n' + 'dad again: ' + jwka
+    msg =  jwkq + '\n' + '\n' +  jwka
     return msg
 
 
@@ -171,12 +171,23 @@ async def anime(ctx, searchName):
         
         search = AnimeSearch(searchName)
         animeId = search.results[0].mal_id
+        animeGenre = Anime(animeId).genres
+        animeTitle = search.results[0].title
+        animeRank = str(Anime(animeId).rank)
+        animeEpi = str(Anime(animeId).episodes)
+        animeAired = str(Anime(animeId).aired)
+        #animeSynopsis = Anime(animeId).synopsis
         await ctx.send(
-            'Title:' + search.results[0].title + '\n' + 
-            'Episodes:' + Anime(animeId).episodes)
+            'Title: ' + animeTitle + '\n' +
+            'Aired: ' + animeAired + '\n'
+            'Episodes: ' + animeEpi + '\n' + 
+            'Rank: ' + animeRank + '\n' + 
+            'Genre: ' + animeGenre[0] + ',' + animeGenre[1] + ',' + animeGenre[2] 
+
+        )
     except:
         await ctx.send('Im not sure if i can find that anime or im just stupid' + '\n' +
-                        'or the anime data source is just so slow'
+                        'or the anime data source is just so slow -v'
                 )
 
 
