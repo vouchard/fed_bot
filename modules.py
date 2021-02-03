@@ -17,7 +17,7 @@ class reddit:
 
     def get_subreddit_data(self,sub):
         all_submissions = []                  
-        for submission in self.reddit.subreddit(sub).top('month',limit=20):
+        for submission in self.reddit.subreddit(sub).top('week',limit=20):
             out_data = {
                 'question':submission.title,
                 'answer' :submission.selftext 
