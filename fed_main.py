@@ -47,7 +47,7 @@ def quote():
     return jwkq
 
 def funny_img():
-    data = reddit.get_subreddit_data('funny','Image')
+    data = reddit.get_subreddit_data('memes','Image')
     one_data = random.choice(data)
     return one_data['link']
 
@@ -219,7 +219,7 @@ async def img(ctx):
                 return await ctx.send('Could not download file...')
             data = io.BytesIO(await resp.read())
             await ctx.send(file=discord.File(data, 'cool_image.png'))
-            print('sending image from r/funny')
+            print('sending image from r/memes')
 
 @client.command()
 async def dimg(ctx):
