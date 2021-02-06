@@ -27,7 +27,7 @@ class reddit:
                 all_submissions.append(out_data)
         if dtype=='Image':
             for submission in self.reddit.subreddit(sub).top('week',limit=50):
-                if ((submission.url).endswith('.png')):
+                if ((submission.url).endswith('.png') or (submission.url).endswith('.jpg')):
                     out_data = {
                         'question':submission.title,
                         'answer' :submission.selftext,
