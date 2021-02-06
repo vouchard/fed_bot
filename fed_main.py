@@ -7,6 +7,9 @@ import os
 from mal import Anime
 from mal import AnimeSearch
 from mal import config
+import io
+import aiohttp
+
 config.TIMEOUT = 2
 ##################LOCAL###############################
 ###DISCORD
@@ -23,7 +26,7 @@ reddit = rd(client_id,client_secret,user_agent)
 reddit.create_reddit_instance()
 
 def ddjokes():
-    data = reddit.get_subreddit_data('dadjokes')
+    data = reddit.get_subreddit_data('dadjokes','Text')
     one = random.choice(data)
     jwkq = one['question']
     jwka = one['answer']
@@ -32,16 +35,29 @@ def ddjokes():
 
 
 def askReddit():
-    data = reddit.get_subreddit_data('AskReddit')
+    data = reddit.get_subreddit_data('AskReddit','Text')
     one = random.choice(data)
     jwkq = one['question']
     return jwkq
 
 def quote():
-    data = reddit.get_subreddit_data('quotes')
+    data = reddit.get_subreddit_data('quotes','Text')
     one = random.choice(data)
     jwkq = one['question']
     return jwkq
+
+def funny_img():
+    data = reddit.get_subreddit_data('funny','Image')
+    one_data = random.choice(data)
+    return one_data['link']
+
+def funny_img_dark():
+    data = reddit.get_subreddit_data('Memes_Of_The_Dank','Image')
+    one_data = random.choice(data)
+    return one_data['link']
+
+
+
 
 def insensitive_in(msg,ref):
     sp = msg.upper()
@@ -160,7 +176,10 @@ async def help(ctx):
         'fd.help  -  mga commands na available, wag spam, wag tanga ' + '\n' +
         'fd.rdj   -  hindi nakakatawang tatay joke na english ' + '\n' +
         'fd.rq    - ninakaw na katanungan sa reddit' + '\n' + 
-        'fd.qu    - syempre as usual nakaw na quote ulet :)'
+        'fd.qu    - syempre as usual nakaw na quote ulet :)' + '\n' +
+        'fd.img   - random picture, minsan funny, minsan lang' + '\n' + 
+        'fd.dimg  - random picture din, na minsan funny din' + '\n' + 
+        'fd.anime - details ng isang anime, ex. fd.anime "nantsu no taizai", may double quote'
         
     )
     print('sending help')
@@ -185,14 +204,34 @@ async def anime(ctx, searchName):
             'Genre: ' + animeGenre[0] + ',' + animeGenre[1] + ',' + animeGenre[2] 
 
         )
+        print('sending anime info')
     except:
         await ctx.send('Im not sure if i can find that anime or im just stupid' + '\n' +
                         'or the anime data source is just so slow -v'
                 )
 
 
+@client.command()
+async def img(ctx):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(funny_img()) as resp:
+            if resp.status != 200:
+                return await ctx.send('Could not download file...')
+            data = io.BytesIO(await resp.read())
+            await ctx.send(file=discord.File(data, 'cool_image.png'))
+            print('sending image from r/funny')
 
-    
+@client.command()
+async def dimg(ctx):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(funny_img_dark()) as resp:
+            if resp.status != 200:
+                return await ctx.send('Could not download file...')
+            data = io.BytesIO(await resp.read())
+            await ctx.send(file=discord.File(data, 'cool_image.png'))
+            print('sending image from r/meme_of_the_dark')
+
+
 
 
 @client.event
@@ -201,16 +240,22 @@ async def on_message(message):
         return
     if insensitive_in(message.content,"Morning"):
         await message.channel.send(morning_response())
+        print('sending good morning')
     if insensitive_in(message.content,"hi"):
         await message.channel.send(hello_hi_response())
+        print('sending hi')
     if insensitive_in(message.content,"hello"):
         await message.channel.send(hello_hi_response())
+        print('sending hello')
     if insensitive_in(message.content,"goodnight"):
             await message.channel.send(goodnight_response())        
+            print('sending goodnight')
     if insensitive_sb(message.content,"say the line sad boy"):
         await message.channel.send(sad_b_g())
+        print('sending sadboy shit')
     if insensitive_sb(message.content,"say the line sad girl"):
         await message.channel.send(sad_b_g())        
+        print('sending sadgirl shit')
 
     await client.process_commands(message)
 
