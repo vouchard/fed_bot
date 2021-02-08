@@ -20,7 +20,7 @@ class reddit:
         if dtype=='Text':                  
             for submission in self.reddit.subreddit(sub).top('week',limit=50):
                 out_data = {
-                    'question':submission.title,
+                    'question':submission.title, 
                     'answer' :submission.selftext
                     
                 }

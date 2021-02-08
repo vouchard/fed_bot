@@ -201,7 +201,7 @@ async def help(ctx):
         
     )
     print('sending help')
-
+ 
 @client.command()
 async def anime(ctx, searchName):
     try:
