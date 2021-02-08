@@ -61,10 +61,10 @@ def funny_img_dark():
     one_data = random.choice(data)
     return one_data['link']
 
-def gif_generator():
+def gif_generator(searched_gif):
     payload = {'api_key':'u1hhjFNeayscrAdYzxLDNlEagsHXvtsg',
-            'q':'Wow',
-            'limit':5
+            'q':searched_gif,
+            'limit':50
             }
 
     data = requests.get('http://api.giphy.com/v1/gifs/search',params= payload)
@@ -250,9 +250,9 @@ async def dimg(ctx):
             print('sending image from r/meme_of_the_dark')
 
 @client.command()
-async def gif(ctx):
+async def gif(ctx, gif_search):
     async with aiohttp.ClientSession() as session:
-        gif_url = gif_generator()
+        gif_url = gif_generator(gif_search)
         async with session.get(gif_url) as resp:
             if resp.status != 200:
                 return await ctx.send('Could not download file...')
