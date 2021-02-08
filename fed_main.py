@@ -9,6 +9,11 @@ from mal import AnimeSearch
 from mal import config
 import io
 import aiohttp
+import requests
+import json
+import os
+
+
 
 config.TIMEOUT = 2
 ##################LOCAL###############################
@@ -56,7 +61,20 @@ def funny_img_dark():
     one_data = random.choice(data)
     return one_data['link']
 
+def gif_generator():
+    payload = {'api_key':'u1hhjFNeayscrAdYzxLDNlEagsHXvtsg',
+            'q':'Wow',
+            'limit':5
+            }
 
+    data = requests.get('http://api.giphy.com/v1/gifs/search',params= payload)
+    data_json = json.loads(data.content)
+    gif_data = data_json['data']
+    gif_random = random.choice(gif_data)
+    gif_image = gif_random['images']
+    gif_down_small = gif_image['downsized']
+    gif_mp4 = gif_down_small['url']
+    return gif_mp4
 
 
 def insensitive_in(msg,ref):
@@ -231,7 +249,17 @@ async def dimg(ctx):
             await ctx.send(file=discord.File(data, 'cool_image.png'))
             print('sending image from r/meme_of_the_dark')
 
-
+@client.command()
+async def gif(ctx):
+    async with aiohttp.ClientSession() as session:
+        gif_url = gif_generator()
+        async with session.get(gif_url) as resp:
+            if resp.status != 200:
+                return await ctx.send('Could not download file...')
+            data = io.BytesIO(await resp.read())
+            fn = os.path.basename(gif_url)
+            await ctx.send(file=discord.File(data, fn))
+            print('sending random GIF')
 
 
 @client.event
