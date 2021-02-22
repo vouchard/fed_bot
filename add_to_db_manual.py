@@ -1,6 +1,8 @@
 import psycopg2
 import os
 import datetime
+import random
+
 hi_hello_responses = ("hello bhie",
 "hello badi",
 "hello darkness my old friend",
@@ -78,13 +80,75 @@ sadboi_resp = ("sorry ganito lang ako",
 ##databse _stuff
 def add_response_to_db(server,filtered_word,response,author,date_add):
     db_pw = os.environ['DB_PW']
+    ins_word = filtered_word.upper()
     conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
     cur = conn.cursor()
-    cur.execute("INSERT INTO auto_response VALUES (DEFAULT,%s,%s,%s,%s,%s)",(server,filtered_word,response,author,date_add))
+    cur.execute("INSERT INTO auto_response VALUES (DEFAULT,%s,%s,%s,%s,%s)",(server,ins_word,response,author,date_add))
     conn.commit()
     conn.close()
 
-#add_response_to_db('serv','hello','hahaha,ulol','vou',datetime.datetime.now())
+
+def view_response_on_db(word):
+    db_pw = os.environ['DB_PW']
+    conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
+    cur = conn.cursor()
+
+    sql = "SELECT * FROM auto_response WHERE filtered_word=%s"
+    cur.execute(sql,(word,))
+    data = cur.fetchall()
+    cur.close
+    conn.close
+    tosend = ('Responses for word ' + word + '\n' +
+            'ID   Response' + '\n' 
+    )
+    for perrow in data:
+        tosend = tosend + str(perrow[0]) + " - " + str(perrow[3]) + '\n'
+    return tosend
+    
+
+def remove_response_on_db(rid):
+    db_pw = os.environ['DB_PW']
+    conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
+    cur = conn.cursor()
+
+    sql = "DELETE FROM auto_response WHERE id=%s"
+    cur.execute(sql,(rid,))
+    conn.commit()
+    cur.close
+    conn.close
+
+
+def pick_response_on_db(resp):
+    db_pw = os.environ['DB_PW']
+    conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
+    cur = conn.cursor()
+    sql = "SELECT response FROM auto_response WHERE  filtered_word=%s"
+    cur.execute(sql,(resp,))
+    data = cur.fetchall()
+    cur.close
+    conn.close
+    pick =  random.choice(data)
+    return pick[0]
+#remove_response_on_db(3)
+#print(pick_response_on_db('hi'))
+
+
+def generate_distinct():
+    db_pw = os.environ['DB_PW']
+    conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
+    cur = conn.cursor()
+    sql = "SELECT DISTINCT filtered_word FROM auto_response"
+    cur.execute(sql)
+    data = cur.fetchall()
+    cur.close
+    conn.close
+    recon_data = []
+    for a in data:
+        recon_data.append((a[0]).upper())
+    return recon_data
+
+
+
 for re in hi_hello_responses:
     add_response_to_db('780072678836011019','hi',re,'fedx',datetime.datetime.now())
 for re in hi_hello_responses:
@@ -100,7 +164,3 @@ for re in sadboi_resp:
 
 for re in sadboi_resp:
     add_response_to_db('780072678836011019','say the line sad girl',re,'fedx',datetime.datetime.now())
-
-
-
-

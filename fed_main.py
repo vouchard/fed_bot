@@ -12,7 +12,8 @@ import aiohttp
 import requests
 import json
 import os
-
+import psycopg2
+import datetime
 
 
 config.TIMEOUT = 2
@@ -30,6 +31,8 @@ user_agent="AutoPostbyVou"
 reddit = rd(client_id,client_secret,user_agent)
 reddit.create_reddit_instance()
 
+print('loading credentials - Done')
+
 def ddjokes():
     data = reddit.get_subreddit_data('dadjokes','Text')
     one = random.choice(data)
@@ -37,7 +40,6 @@ def ddjokes():
     jwka = one['answer']
     msg =  jwkq + '\n' + '\n' +  jwka
     return msg
-
 
 def askReddit():
     data = reddit.get_subreddit_data('AskReddit','Text')
@@ -77,95 +79,12 @@ def gif_generator(searched_gif):
     return gif_mp4
 
 
-def insensitive_in(msg,ref):
-    sp = msg.upper()
-    sp = sp.split()
-    return ref.upper() in sp
-
-def insensitive_sb(msg,ref):
     return msg.upper() == ref.upper()
-
-
-def hello_hi_response():
-    hi_hello_responses = ("hello bhie",
-    "hello badi",
-    "hello darkness my old friend",
-    "hello aga mo ata nagising",
-    "hello sa lahat",
-    "hello hi hello",
-    "hello po",
-    "edi hello",
-    "hello?",
-    "hello!",
-    "hello asan ka ngayon?",
-    "HELLO?!",
-    "hello there, an angel from my nightmare a shadow in the background of the morgue!")
-    return  random.choice(hi_hello_responses)
-
-def morning_response():
-    resp = ("Get your butt out of bed!",
-    "Rise and shine, it's time for wine!",
-    "Ready to have an awesome day with my amigo!",
-    "Every morning is good when I think about how lucky I am to have a friend like you!",
-    "Having morning coffee with my bestie is the bestest way to have a good morning!",
-    "Seeing your beautiful face is the best part of waking up in the morning!",
-    "Hi, Awesome! How'd you sleep?",
-    "I always have a reason to wake up, and that’s simply to say “good morning” to you!",
-    "I love you, even before you've had your morning coffee!",
-    "Dreaming of you is great, but waking up to you is perfect. Saying good morning to you is my dream come true!",
-    "I wish I was there to rise and shine with you. Good morning!",
-    "Every morning that I awake next to you is a good morning!",
-    "Good morning! I dreamt of you last night and woke up smiling!",
-    "Mornin', good-lookin'!")
-    return  random.choice(resp)
-
-def goodnight_response():
-    resp = ("Nighty Night",
-    "Sweet dreams!",
-    "Sleep well",
-    "Have a good sleep",
-    "Dream about me!",
-    "Go to bed, you sleepy head!",
-    "Sleep tight!",
-    "Time to ride the rainbow to dreamland!",
-    "Don’t forget to say your prayers!",
-    "Goodnight, the little love of my life!",
-    "Night Night.",
-    "Lights out!",
-    "See ya’ in the mornin’!",
-    "I’ll be right here in the morning.",
-    "I’ll be dreaming of you!",
-    "Dream of Mama/Papa!",
-    "Sleep well, my little prince/princess!",
-    "Jesus loves you, and so do I!",
-    "Sleep snug as a bug in a rug!",
-    "Dream of me",
-    "Until tomorrow.",
-    "Always and forever!",
-    "I’ll be dreaming of your face!",
-    "I’m so lucky to have you, Sweetheart!",
-    "I love you to the stars and back!",
-    "I’ll dream of you tonight and see you tomorrow, my love.",
-    "I can’t imagine myself with anyone else!",
-    "If you need me, you know where to find me.",
-    "Goodnight, the love of my life!",
-    "Can’t wait to wake up next to you!")
-    return  random.choice(resp)
-
-def sad_b_g():
-    resp = ("sorry ganito lang ako",
-    "Sorry ganito lang ako",
-    "Salamat sa lahat",
-    "Sige OK lang ako",
-    "Ganyan ka naman palagi e!",
-    "Sige kasalanan ko na",
-    "Sorry kung nakakaabala ako",
-    "Sorry kung hindi kita na entertain")
-    return  random.choice(resp)
-
 
 client = commands.Bot(command_prefix = 'fd.')
 client.remove_command('help')
+
+print('loading preliminary functions - Done')
 
 @client.event
 async def on_ready():
@@ -261,30 +180,114 @@ async def gif(ctx, gif_search):
             await ctx.send(file=discord.File(data, fn))
             print('sending random GIF')
 
+@client.command()
+async def getguild(ctx):
+    id = ctx.message.guild.id
+    await ctx.send(id)
 
+print('loading fd commands - Done')
+###### Response configurators ###################################
+def generate_distinct():
+    db_pw = os.environ['DB_PW']
+    conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
+    cur = conn.cursor()
+    sql = "SELECT DISTINCT filtered_word FROM auto_response"
+    cur.execute(sql)
+    data = cur.fetchall()
+    cur.close
+    conn.close
+    recon_data = []
+    for a in data:
+        recon_data.append((a[0]).upper())
+    return recon_data
+global unique_words
+unique_words = generate_distinct()
+
+@client.command()
+async def viewResponse(ctx,qword):
+    db_pw = os.environ['DB_PW']
+    word = qword.upper()
+    conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
+    cur = conn.cursor()
+
+    sql = "SELECT * FROM auto_response WHERE filtered_word=%s"
+    cur.execute(sql,(word,))
+    data = cur.fetchall()
+    cur.close
+    conn.close
+    tosend = ('Responses for word ' + word + '\n' +
+            'ID   Response' + '\n' 
+    )
+    for perrow in data:
+        tosend = tosend + str(perrow[0]) + " - " + str(perrow[3]) + '\n'
+    await ctx.send(tosend)
+    print('Sending responses')
+
+@client.command()
+async def removeResponse(ctx,rid):
+    db_pw = os.environ['DB_PW']
+    conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
+    cur = conn.cursor()
+
+    sql = "DELETE FROM auto_response WHERE id=%s"
+    cur.execute(sql,(rid,))
+    conn.commit()
+    cur.close
+    conn.close
+    await ctx.send('Response removed')
+
+@client.command()
+async def addResponse(ctx,qfiltered_word,response):
+    server = ctx.message.guild.id
+    filtered_word = qfiltered_word.upper()
+    date_add = datetime.datetime.now()
+    author = ctx.message.author.name
+    db_pw = os.environ['DB_PW']
+    conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
+    cur = conn.cursor()
+    cur.execute("INSERT INTO auto_response VALUES (DEFAULT,%s,%s,%s,%s,%s)",(server,filtered_word,response,author,date_add))
+    conn.commit()
+    conn.close()
+    all_global = globals()
+    all_global['unique_words'] = generate_distinct()
+    print('Adding response to database')
+    await ctx.send('Response added')
+
+def pick_response_on_db(resp):
+    db_pw = os.environ['DB_PW']
+    conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
+    cur = conn.cursor()
+    sql = "SELECT response FROM auto_response WHERE  filtered_word=%s"
+    cur.execute(sql,(resp,))
+    data = cur.fetchall()
+    cur.close
+    conn.close
+    pick =  random.choice(data)
+    return pick[0]
+
+
+print('response configurators - Done')
+
+
+########## Message Listeners ####################################
 @client.event
 async def on_message(message):
     if message.author == client.user:
         return
-    if insensitive_in(message.content,"Morning"):
-        await message.channel.send(morning_response())
-        print('sending good morning')
-    if insensitive_in(message.content,"hi"):
-        await message.channel.send(hello_hi_response())
-        print('sending hi')
-    if insensitive_in(message.content,"hello"):
-        await message.channel.send(hello_hi_response())
-        print('sending hello')
-    if insensitive_in(message.content,"goodnight"):
-            await message.channel.send(goodnight_response())        
-            print('sending goodnight')
-    if insensitive_sb(message.content,"say the line sad boy"):
-        await message.channel.send(sad_b_g())
-        print('sending sadboy shit')
-    if insensitive_sb(message.content,"say the line sad girl"):
-        await message.channel.send(sad_b_g())        
-        print('sending sadgirl shit')
-
+    msg_upper = (message.content).upper()
+    msg_split = msg_upper.split()
+    all_global = globals()
+    distinct_words = all_global['unique_words']
+    for wrd in distinct_words:
+        if (wrd in msg_split):
+            await message.channel.send((pick_response_on_db(wrd)))
+        elif (wrd == msg_upper):
+            await message.channel.send((pick_response_on_db(wrd)))
     await client.process_commands(message)
 
+#need to add whole message comparison
+#need to remove word distinct on every message,unecessary, probably use global
+
+
+print('waiting for client.run. . . ')
 client.run(discord_token)
