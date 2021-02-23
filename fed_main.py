@@ -187,9 +187,10 @@ async def getguild(ctx):
 
 print('loading fd commands - Done')
 ###### Response configurators ###################################
+#db_pw = os.environ['DB_PW'] #windows only
 def generate_distinct():
-    db_pw = os.environ['DB_PW']
-    conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
+    #conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
+    conn = psycopg2.connect(dbname='fed_bot',user='vouchard')
     cur = conn.cursor()
     sql = "SELECT DISTINCT filtered_word FROM auto_response"
     cur.execute(sql)
@@ -205,9 +206,9 @@ unique_words = generate_distinct()
 
 @client.command()
 async def viewResponse(ctx,qword):
-    db_pw = os.environ['DB_PW']
     word = qword.upper()
-    conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
+    #conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
+    conn = psycopg2.connect(dbname='fed_bot',user='vouchard')
     cur = conn.cursor()
 
     sql = "SELECT * FROM auto_response WHERE filtered_word=%s"
@@ -225,8 +226,9 @@ async def viewResponse(ctx,qword):
 
 @client.command()
 async def removeResponse(ctx,rid):
-    db_pw = os.environ['DB_PW']
-    conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
+    #db_pw = os.environ['DB_PW']
+    #conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
+    conn = psycopg2.connect(dbname='fed_bot',user='vouchard')
     cur = conn.cursor()
 
     sql = "DELETE FROM auto_response WHERE id=%s"
@@ -242,8 +244,8 @@ async def addResponse(ctx,qfiltered_word,response):
     filtered_word = qfiltered_word.upper()
     date_add = datetime.datetime.now()
     author = ctx.message.author.name
-    db_pw = os.environ['DB_PW']
-    conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
+    #conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
+    conn = psycopg2.connect(dbname='fed_bot',user='vouchard')
     cur = conn.cursor()
     cur.execute("INSERT INTO auto_response VALUES (DEFAULT,%s,%s,%s,%s,%s)",(server,filtered_word,response,author,date_add))
     conn.commit()
@@ -254,8 +256,8 @@ async def addResponse(ctx,qfiltered_word,response):
     await ctx.send('Response added')
 
 def pick_response_on_db(resp):
-    db_pw = os.environ['DB_PW']
-    conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
+    #conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
+    conn = psycopg2.connect(dbname='fed_bot',user='vouchard')
     cur = conn.cursor()
     sql = "SELECT response FROM auto_response WHERE  filtered_word=%s"
     cur.execute(sql,(resp,))
