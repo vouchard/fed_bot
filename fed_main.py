@@ -259,13 +259,17 @@ def pick_response_on_db(resp,server):
     #conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
     conn = psycopg2.connect(dbname='fed_bot',user='vouchard')
     cur = conn.cursor()
+    server = str(server)
     sql = "SELECT response FROM auto_response WHERE  filtered_word=%s AND server=%s"
     cur.execute(sql,(resp,server,))
     data = cur.fetchall()
     cur.close
     conn.close
-    pick =  random.choice(data)
-    return pick[0]
+    if data != []:
+        pick =  random.choice(data)
+        return pick[0]
+    else:
+        return None
 
 
 print('response configurators - Done')
@@ -283,9 +287,14 @@ async def on_message(message):
     ser = message.guild.id
     for wrd in distinct_words:
         if (wrd in msg_split):
-            await message.channel.send((pick_response_on_db(wrd,ser)))
+            tosend = pick_response_on_db(wrd,ser)
+            if tosend != None :
+                await message.channel.send(tosend)
         elif (wrd == msg_upper):
-            await message.channel.send((pick_response_on_db(wrd,ser)))
+            tosend = pick_response_on_db(wrd,ser)
+            if tosend != None :
+                await message.channel.send(tosend)
+    print('Sending Random Response')
     await client.process_commands(message)
 
 #need to add whole message comparison
