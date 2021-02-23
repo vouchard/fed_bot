@@ -207,12 +207,13 @@ unique_words = generate_distinct()
 @client.command()
 async def viewResponse(ctx,qword):
     word = qword.upper()
+    server = ctx.message.guild.id
     #conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
     conn = psycopg2.connect(dbname='fed_bot',user='vouchard')
     cur = conn.cursor()
-
-    sql = "SELECT * FROM auto_response WHERE filtered_word=%s"
-    cur.execute(sql,(word,))
+    server = str(server)
+    sql = "SELECT * FROM auto_response WHERE filtered_word=%s AND server=%s"
+    cur.execute(sql,(word,server,))
     data = cur.fetchall()
     cur.close
     conn.close
@@ -221,7 +222,8 @@ async def viewResponse(ctx,qword):
     )
     for perrow in data:
         tosend = tosend + str(perrow[0]) + " - " + str(perrow[3]) + '\n'
-    await ctx.send(tosend)
+    if data != []:
+        await ctx.send(tosend)
     print('Sending responses')
 
 @client.command()
@@ -290,11 +292,13 @@ async def on_message(message):
             tosend = pick_response_on_db(wrd,ser)
             if tosend != None :
                 await message.channel.send(tosend)
+                print('Sending Random Response')
         elif (wrd == msg_upper):
             tosend = pick_response_on_db(wrd,ser)
             if tosend != None :
                 await message.channel.send(tosend)
-    print('Sending Random Response')
+                print('Sending Random Response')
+    
     await client.process_commands(message)
 
 #need to add whole message comparison
