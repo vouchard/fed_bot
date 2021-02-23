@@ -255,12 +255,12 @@ async def addResponse(ctx,qfiltered_word,response):
     print('Adding response to database')
     await ctx.send('Response added')
 
-def pick_response_on_db(resp):
+def pick_response_on_db(resp,server):
     #conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
     conn = psycopg2.connect(dbname='fed_bot',user='vouchard')
     cur = conn.cursor()
-    sql = "SELECT response FROM auto_response WHERE  filtered_word=%s"
-    cur.execute(sql,(resp,))
+    sql = "SELECT response FROM auto_response WHERE  filtered_word=%s AND server=%s"
+    cur.execute(sql,(resp,server,))
     data = cur.fetchall()
     cur.close
     conn.close
@@ -280,11 +280,12 @@ async def on_message(message):
     msg_split = msg_upper.split()
     all_global = globals()
     distinct_words = all_global['unique_words']
+    ser = message.guild.id
     for wrd in distinct_words:
         if (wrd in msg_split):
-            await message.channel.send((pick_response_on_db(wrd)))
+            await message.channel.send((pick_response_on_db(wrd,ser)))
         elif (wrd == msg_upper):
-            await message.channel.send((pick_response_on_db(wrd)))
+            await message.channel.send((pick_response_on_db(wrd,ser)))
     await client.process_commands(message)
 
 #need to add whole message comparison
