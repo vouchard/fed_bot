@@ -104,22 +104,6 @@ async def rq(ctx):
 async def qu(ctx):
     await ctx.send(quote())
     print('sending random reddit quote')
-
-
-@client.command()
-async def help(ctx):
-    await ctx.send(
-        'list of commands, gingawa ko pa lang kaya onte pa lang' + '\n' +
-        'fd.help  -  mga commands na available, wag spam, wag tanga ' + '\n' +
-        'fd.rdj   -  hindi nakakatawang tatay joke na english ' + '\n' +
-        'fd.rq    - ninakaw na katanungan sa reddit' + '\n' + 
-        'fd.qu    - syempre as usual nakaw na quote ulet :)' + '\n' +
-        'fd.img   - random picture, minsan funny, minsan lang' + '\n' + 
-        'fd.dimg  - random picture din, na minsan funny din' + '\n' + 
-        'fd.anime - details ng isang anime, ex. fd.anime "nantsu no taizai", may double quote'
-        
-    )
-    print('sending help')
  
 @client.command()
 async def anime(ctx, searchName):
@@ -275,6 +259,45 @@ def pick_response_on_db(resp,server):
 
 
 print('response configurators - Done')
+###################################################################
+############ HELP COMMANDS ########################################
+@client.command()
+async def help(ctx):
+    await ctx.send(
+        'CHANGELOG: I added commands to configure responses on words and sentences, please see below'  + '\n' +
+        ' ' + '\n' +
+        'list of commands, gingawa ko pa lang kaya onte pa lang' + '\n' +
+        'fd.help  -  mga commands na available, wag spam, wag tanga ' + '\n' +
+        'fd.rdj   -  hindi nakakatawang tatay joke na english ' + '\n' +
+        'fd.rq    - ninakaw na katanungan sa reddit' + '\n' + 
+        'fd.qu    - syempre as usual nakaw na quote ulet :)' + '\n' +
+        'fd.img   - random picture, minsan funny, minsan lang' + '\n' + 
+        'fd.dimg  - random picture din, na minsan funny din' + '\n' + 
+        'fd.anime - details ng isang anime, ex. fd.anime "nantsu no taizai", may double quote' + '\n' +
+
+        '----------------------------------------------------------------------' + '\n' +
+        'How to configure Auto responses on any words/sentence:' + '\n' +
+        'Commands:' + '\n' +
+        'to add:' + '\n' +
+        'fd.AddResponse "insert_word_or_sentence" "insert_response"' + '\n' +
+        '       example: fd.addResponse "kamusta?" "ayos lang eto bot pa din"' + '\n' +
+        '       note: please dont forget to use double quotes and space between word and response' + '\n' +
+        ' ' + '\n' +
+        'to view current responses:' + '\n' +
+        'fd.viewResponse "insert_word"  -- again double use quotes' + '\n' +
+        ' ' + '\n' +
+        'to remove a response you need to use fd.viewResponse command first to get the ID of a response' + '\n' +
+        'fd.removeResponse ID  --- no double quote'  + '\n' +
+        ' ' + '\n' +
+        'Incase multiple response was addded to a certain word/sentence the bot will choose randomly' + '\n' +
+        'this is a beta version only, bug fixes will be pushed on my reposity soon' + '\n' +
+        'https://github.com/vouchard/fed_bot' + '\n' +
+        'Thanks, loveyou <3'
+
+
+        
+    )
+    print('sending help')
 
 
 ########## Message Listeners ####################################
