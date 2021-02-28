@@ -1,1 +1,0 @@
-worker: python fed_main.py
