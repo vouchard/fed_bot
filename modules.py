@@ -9,7 +9,7 @@ from mal import config #anime API
 import platform #check OS
 import os #os
 import psycopg2 #postgres
-
+import discord #discord.py
 class reddit:
     def __init__(self,client_id,client_secret,user_agent):
         self.client_id = client_id
@@ -43,7 +43,6 @@ class reddit:
         return all_submissions
 
 #non Discord functions
-
 
 def ddjokes():
     data = reddit.get_subreddit_data('dadjokes','Text')
@@ -90,7 +89,6 @@ def gif_generator(searched_gif):
     gif_mp4 = gif_down_small['url']
     return gif_mp4
 
-
 def db_connect():
     print(platform.system())
     db_pw = os.environ['DB_PW'] #windows only
@@ -114,3 +112,19 @@ def generate_distinct():
         recon_data.append((a[0]).upper())
     return recon_data
 
+def bio_function(ctx,client):
+    if ctx.message.mentions != '[]':
+    #    user_joined_discord = ctx.message.author.created_at.strftime("%b %d, %Y")
+     #   user_joined_server = ctx.message.author.joined_at.strftime("%b %d, %Y")
+        guild = client.get_guild(ctx.message.guild.id)
+        user_member = guild.get_member(ctx.message.mentions[0].id)
+        user_name = ctx.message.mentions[0].name
+        user_nick = ctx.message.mentions[0].nick
+        #print(user_member)
+        msg = ('Name:' + user_name + '\n' +
+                'Nickname:' + user_nick  + '\n' 
+                )
+        
+    return msg
+    
+    

@@ -10,7 +10,7 @@ import requests #requests
 import json #json
 import datetime #date Time
 import os
-
+import sys, importlib
 
 global unique_words
 unique_words = generate_distinct()
@@ -204,13 +204,18 @@ async def help(ctx):
         ' ' + '\n' +
         'list of commands, gingawa ko pa lang kaya onte pa lang' + '\n' +
         'fd.help  -  mga commands na available, wag spam, wag tanga ' + '\n' +
+        'fd.responseHelp  -  help commands for adding/removing auto response' + '\n' +
         'fd.rdj   -  hindi nakakatawang tatay joke na english ' + '\n' +
         'fd.rq    - ninakaw na katanungan sa reddit' + '\n' + 
         'fd.qu    - syempre as usual nakaw na quote ulet :)' + '\n' +
         'fd.img   - random picture, minsan funny, minsan lang' + '\n' + 
         'fd.dimg  - random picture din, na minsan funny din' + '\n' + 
-        'fd.anime - details ng isang anime, ex. fd.anime "nantsu no taizai", may double quote' + '\n' +
+        'fd.anime - details ng isang anime, ex. fd.anime "nantsu no taizai", may double quote' )
+    print('sending help')
 
+@client.command()
+async def responseHelp(ctx):
+    await ctx.send(
         '----------------------------------------------------------------------' + '\n' +
         'How to configure Auto responses on any words/sentence:' + '\n' +
         'Commands:' + '\n' +
@@ -228,12 +233,47 @@ async def help(ctx):
         'Incase multiple response was addded to a certain word/sentence the bot will choose randomly' + '\n' +
         'this is a beta version only, bug fixes will be pushed on my reposity soon' + '\n' +
         'https://github.com/vouchard/fed_bot' + '\n' +
-        'Thanks, loveyou <3'
-
-
-        
+        'Thanks, loveyou <3'    
     )
-    print('sending help')
+    print('sending response help')
+
+@client.command()
+async def whois(ctx):
+    #importlib.reload(sys.modules['modules'])
+    #from modules import bio_function
+    #dt = bio_function(ctx,client)
+    guild = client.get_guild(ctx.message.guild.id)
+    if ctx.message.mentions != []:
+    #    user_joined_discord = ctx.message.author.created_at.strftime("%b %d, %Y")
+     #   user_joined_server = ctx.message.author.joined_at.strftime("%b %d, %Y")
+        user_member = await guild.fetch_member(ctx.message.mentions[0].id)
+        user_name = ctx.message.mentions[0].name
+        user_nick = ctx.message.mentions[0].nick
+        user_obj = await client.fetch_user(ctx.message.mentions[0].id)
+        user_joined_discord = user_obj.created_at.strftime("%b %d, %Y")
+        user_joined_server = user_member.joined_at.strftime("%b %d, %Y")
+    else:
+        user_name = ctx.message.author.name
+        user_nick = ctx.message.author.nick
+        user_joined_discord = ctx.message.author.created_at.strftime("%b %d, %Y")
+        user_joined_server = ctx.message.author.joined_at.strftime("%b %d, %Y")
+
+
+    msg = ('Discord Name: ' + user_name + '\n' +
+            'Server Nickname: ' + user_nick  + '\n' 
+            'Joined Discord: ' + user_joined_discord + '\n' +
+            'Joined Server: ' + user_joined_server + '\n' + 
+            " " + '\n' + 
+            '---this part is under development----'
+            )
+
+    await ctx.send(msg)
+
+
+
+
+
+
 
 
 ########## Message Listeners ####################################
