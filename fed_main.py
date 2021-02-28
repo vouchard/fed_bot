@@ -1,21 +1,22 @@
-import discord
-import praw
+import discord #discord.py
+
 from discord.ext import commands
+from modules import *
 from modules import reddit as rd
-import random
-import os 
-from mal import Anime
-from mal import AnimeSearch
-from mal import config
-import io
-import aiohttp
-import requests
-import json
+import random #random
+import io #needed in dicord for uploading imgs
+import aiohttp #needed in dicord for uploading imgs
+import requests #requests
+import json #json
+import datetime #date Time
 import os
-import psycopg2
-import datetime
 
 
+global unique_words
+unique_words = generate_distinct()
+
+
+print("STARTING...")
 config.TIMEOUT = 2
 ##################LOCAL###############################
 ###DISCORD
@@ -26,65 +27,15 @@ client_secret= os.environ['REDDIT_SECRET']
 
 print(discord_token)
 
+client = commands.Bot(command_prefix = 'fd.')
+client.remove_command('help')
+
 
 user_agent="AutoPostbyVou"
 reddit = rd(client_id,client_secret,user_agent)
 reddit.create_reddit_instance()
 
 print('loading credentials - Done')
-
-def ddjokes():
-    data = reddit.get_subreddit_data('dadjokes','Text')
-    one = random.choice(data)
-    jwkq = one['question']
-    jwka = one['answer']
-    msg =  jwkq + '\n' + '\n' +  jwka
-    return msg
-
-def askReddit():
-    data = reddit.get_subreddit_data('AskReddit','Text')
-    one = random.choice(data)
-    jwkq = one['question']
-    return jwkq
-
-def quote():
-    data = reddit.get_subreddit_data('quotes','Text')
-    one = random.choice(data)
-    jwkq = one['question']
-    return jwkq
-
-def funny_img():
-    data = reddit.get_subreddit_data('memes','Image')
-    one_data = random.choice(data)
-    return one_data['link']
-
-def funny_img_dark():
-    data = reddit.get_subreddit_data('Memes_Of_The_Dank','Image')
-    one_data = random.choice(data)
-    return one_data['link']
-
-def gif_generator(searched_gif):
-    payload = {'api_key':'u1hhjFNeayscrAdYzxLDNlEagsHXvtsg',
-            'q':searched_gif,
-            'limit':50
-            }
-
-    data = requests.get('http://api.giphy.com/v1/gifs/search',params= payload)
-    data_json = json.loads(data.content)
-    gif_data = data_json['data']
-    gif_random = random.choice(gif_data)
-    gif_image = gif_random['images']
-    gif_down_small = gif_image['downsized']
-    gif_mp4 = gif_down_small['url']
-    return gif_mp4
-
-
-    return msg.upper() == ref.upper()
-
-client = commands.Bot(command_prefix = 'fd.')
-client.remove_command('help')
-
-print('loading preliminary functions - Done')
 
 @client.event
 async def on_ready():
@@ -170,30 +121,15 @@ async def getguild(ctx):
     await ctx.send(id)
 
 print('loading fd commands - Done')
+
 ###### Response configurators ###################################
-#db_pw = os.environ['DB_PW'] #windows only
-def generate_distinct():
-    #conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
-    conn = psycopg2.connect(dbname='fed_bot',user='vouchard')
-    cur = conn.cursor()
-    sql = "SELECT DISTINCT filtered_word FROM auto_response"
-    cur.execute(sql)
-    data = cur.fetchall()
-    cur.close
-    conn.close
-    recon_data = []
-    for a in data:
-        recon_data.append((a[0]).upper())
-    return recon_data
-global unique_words
-unique_words = generate_distinct()
 
 @client.command()
 async def viewResponse(ctx,qword):
     word = qword.upper()
     server = ctx.message.guild.id
     #conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
-    conn = psycopg2.connect(dbname='fed_bot',user='vouchard')
+    conn = db_connect()
     cur = conn.cursor()
     server = str(server)
     sql = "SELECT * FROM auto_response WHERE filtered_word=%s AND server=%s"
@@ -214,7 +150,7 @@ async def viewResponse(ctx,qword):
 async def removeResponse(ctx,rid):
     #db_pw = os.environ['DB_PW']
     #conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
-    conn = psycopg2.connect(dbname='fed_bot',user='vouchard')
+    conn = db_connect()
     cur = conn.cursor()
 
     sql = "DELETE FROM auto_response WHERE id=%s"
@@ -231,7 +167,7 @@ async def addResponse(ctx,qfiltered_word,response):
     date_add = datetime.datetime.now()
     author = ctx.message.author.name
     #conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
-    conn = psycopg2.connect(dbname='fed_bot',user='vouchard')
+    conn = db_connect()
     cur = conn.cursor()
     cur.execute("INSERT INTO auto_response VALUES (DEFAULT,%s,%s,%s,%s,%s)",(server,filtered_word,response,author,date_add))
     conn.commit()
@@ -243,7 +179,7 @@ async def addResponse(ctx,qfiltered_word,response):
 
 def pick_response_on_db(resp,server):
     #conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
-    conn = psycopg2.connect(dbname='fed_bot',user='vouchard')
+    conn = db_connect()
     cur = conn.cursor()
     server = str(server)
     sql = "SELECT response FROM auto_response WHERE  filtered_word=%s AND server=%s"
