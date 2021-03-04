@@ -238,42 +238,61 @@ async def responseHelp(ctx):
     print('sending response help')
 
 @client.command()
-async def whois(ctx):
-    #importlib.reload(sys.modules['modules'])
-    #from modules import bio_function
-    #dt = bio_function(ctx,client)
+async def bio(ctx):
+    importlib.reload(sys.modules['modules'])
+    from modules import bio_function
+
     guild = client.get_guild(ctx.message.guild.id)
     if ctx.message.mentions != []:
-    #    user_joined_discord = ctx.message.author.created_at.strftime("%b %d, %Y")
-     #   user_joined_server = ctx.message.author.joined_at.strftime("%b %d, %Y")
         user_member = await guild.fetch_member(ctx.message.mentions[0].id)
         user_name = ctx.message.mentions[0].name
         user_nick = ctx.message.mentions[0].nick
         user_obj = await client.fetch_user(ctx.message.mentions[0].id)
         user_joined_discord = user_obj.created_at.strftime("%b %d, %Y")
         user_joined_server = user_member.joined_at.strftime("%b %d, %Y")
+        user_id = ctx.message.mentions[0].id
+        url = user_obj.avatar_url
     else:
         user_name = ctx.message.author.name
         user_nick = ctx.message.author.nick
         user_joined_discord = ctx.message.author.created_at.strftime("%b %d, %Y")
         user_joined_server = ctx.message.author.joined_at.strftime("%b %d, %Y")
+        user_id = ctx.message.author.id
+        url = ctx.author.avatar_url
+    tosend = get_bio_on_db(user_id,user_name,user_nick,user_joined_discord,user_joined_server,url)
+    
+
+    
+
+    await ctx.send(embed=tosend)
 
 
-    msg = ('Discord Name: ' + user_name + '\n' +
-            'Server Nickname: ' + user_nick  + '\n' 
-            'Joined Discord: ' + user_joined_discord + '\n' +
-            'Joined Server: ' + user_joined_server + '\n' + 
-            " " + '\n' + 
-            '---this part is under development----'
-            )
+@client.command()
+async def addtobio(ctx,info_title,info):
+    importlib.reload(sys.modules['modules'])
+    from modules import get_bio_on_db
 
-    await ctx.send(msg)
+    sender_id = ctx.author.id
+    conn = db_connect()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO user_info VALUES (DEFAULT,%s,%s,%s)",(sender_id,info,info_title))
+    conn.commit()
+    conn.close()
+    await ctx.send('Added to bio')
 
-
-
-
-
-
+@client.command()
+async def removefrombio(ctx,rid):
+    #db_pw = os.environ['DB_PW']
+    #conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
+    conn = db_connect()
+    cur = conn.cursor()
+    au_id = str(ctx.author.id)
+    sql = "DELETE FROM user_info WHERE discord_id=%s AND info_title=%s"
+    cur.execute(sql,(au_id,rid,))
+    conn.commit()
+    cur.close
+    conn.close
+    await ctx.send('bio removed')
 
 
 ########## Message Listeners ####################################
