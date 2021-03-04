@@ -90,7 +90,7 @@ def gif_generator(searched_gif):
     return gif_mp4
 
 def db_connect():
-    print(platform.system())
+    #print(platform.system())
     db_pw = os.environ['DB_PW'] #windows only
     if platform.system() =='Windows':
         conn = psycopg2.connect(dbname='fed_bot',user='postgres',password=db_pw)
@@ -126,5 +126,22 @@ def bio_function(ctx,client):
                 )
         
     return msg
+
+def get_bio_on_db(usr_id,discord_name,discord_nn,joined_discord,joined_server,url):
+    usr_id = str(usr_id)
+    conn = db_connect()
+    cur = conn.cursor()
+    sql = "SELECT * FROM user_info WHERE discord_id=%s"
+    cur.execute(sql,(usr_id,))
+    data = cur.fetchall()
+    cur.close
+    conn.close
+    embed=discord.Embed(title= discord_nn, description=" ", color=0x9109ec)
+    embed.set_thumbnail(url=url)
+    embed.set_author(name=discord_name)
+    embed.add_field(name="Joined Discord", value=joined_discord, inline=True)
+    embed.add_field(name="Joined Server", value=joined_server, inline=True)
+    for perrow in data:
+        embed.add_field(name=perrow[3], value=perrow[2], inline=False)
     
-    
+    return embed
