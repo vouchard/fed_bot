@@ -205,6 +205,7 @@ async def help(ctx):
         'list of commands, gingawa ko pa lang kaya onte pa lang' + '\n' +
         'fd.help  -  mga commands na available, wag spam, wag tanga ' + '\n' +
         'fd.responseHelp  -  help commands for adding/removing auto response' + '\n' +
+        'fd.bioHelp  -  help commands for adding, showing, removing bio'  + '\n' +
         'fd.rdj   -  hindi nakakatawang tatay joke na english ' + '\n' +
         'fd.rq    - ninakaw na katanungan sa reddit' + '\n' + 
         'fd.qu    - syempre as usual nakaw na quote ulet :)' + '\n' +
@@ -238,6 +239,20 @@ async def responseHelp(ctx):
     print('sending response help')
 
 @client.command()
+async def bioHelp(ctx):
+    await ctx.send(
+        'How to configure Personal Bio' + '\n' +
+        'fd.addtobio "INFO" "Details"  -- add info to bio,  '  + '\n' +
+        '   Example: fd.addtobio "VALO ID" "1234567"'  + '\n' +
+        'fd.removefrombio "INFO" -- Remove data on your bio'  + '\n' +
+        '   Example: fd.removefrombio "VALO ID"'  + '\n' +
+        'fd.bio @haduken   --  show haduken bio'  + '\n' +
+        'fd.bio  ------ show your own bio'
+
+    )
+
+
+@client.command()
 async def bio(ctx):
     importlib.reload(sys.modules['modules'])
     from modules import bio_function
@@ -263,7 +278,7 @@ async def bio(ctx):
     
 
     
-
+    print('showing bio')
     await ctx.send(embed=tosend)
 
 
@@ -278,6 +293,7 @@ async def addtobio(ctx,info_title,info):
     cur.execute("INSERT INTO user_info VALUES (DEFAULT,%s,%s,%s)",(sender_id,info,info_title))
     conn.commit()
     conn.close()
+    print('adding data to bio')
     await ctx.send('Added to bio')
 
 @client.command()
@@ -292,6 +308,7 @@ async def removefrombio(ctx,rid):
     conn.commit()
     cur.close
     conn.close
+    print('removing bio')
     await ctx.send('bio removed')
 
 
